@@ -7,7 +7,7 @@
   },
   "license": "Apache",
   "engines": {
-    "node": "~0.10.0 || ~4.2.0"
+    "node": "8.8.1"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
