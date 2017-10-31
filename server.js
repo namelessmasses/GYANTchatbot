@@ -75,16 +75,14 @@ app.post('/webhook',
 	 }
 	);
 
+
+
 app.post('/inbound',
 	 function (req, res)
 	 {
 	     console.log(`/inbound= req=${req} res=${res}`);
-	     for (var key in req)
-	     {
-	     	 var value = req[key.toString()];
-	     	 console.log(`ngarimu.req.${key} = `);
-	     	 console.log(value);
-	     }
+	     console.log(req.body.message);
+	     console.log(req.body.user);
 	 }
 	);
 
