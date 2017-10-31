@@ -50,14 +50,7 @@ function talkToGYANT(output)
 			    + '\t body= ' + body);
 	    }
 	}
-    ).on('data',
-	 function (data)
-	 {
-	     var time = moment();
-	     console.log(time.format('YYYY-MM-DD HH:mm:ss Z') + ': '
-			 + data);
-	 }
-	);
+    );
 }
 
 app.get('/',
@@ -81,7 +74,7 @@ app.post('/inbound',
 	     console.log(`/inbound= req=${req} res=${res}`);
 	     for (var key in res)
 	     {
-		 console.log(`${key} = ${res[key]}`);
+		 console.log(`res.${key} = ${res[key]}`);
 	     }
 	 }
 	);
