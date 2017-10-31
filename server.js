@@ -79,6 +79,10 @@ app.post('/inbound',
 	 function (req, res)
 	 {
 	     console.log(`/inbound= req=${req} res=${res}`);
+	     for (var key in res)
+	     {
+		 console.log(`${key} = ${res[key]}`);
+	     }
 	 }
 	);
 
