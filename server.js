@@ -86,7 +86,7 @@ app.post('/inbound',
 	 }
 	);
 
-app.listen((process.env.PORT || 8080));
+// app.listen((process.env.PORT || 8080));
 
 // Connect to GYANT at https://api-mbf.dev.gyantts.com:3978/api/testing
 
