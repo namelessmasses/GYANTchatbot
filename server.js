@@ -35,13 +35,20 @@ function talkToGYANT(output)
 	},
 	function (error, response, body)
 	{
+	    console.log('hello response');
 	    if (error)
 	    {
 		console.log('Error sending message: ', error); 
             }
 	    else
 	    {
-		output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+		// for (var key in response)
+		// {
+		//     var value = response[key.toString()];
+		//     console.log(`response.${key} = `);
+		//     console.log(value);
+		// }
+		Output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
 			    + ': '
 			    + '\t response= ' + response + '\n'
 			    + '\t response.statusCode= ' + response.statusCode
@@ -74,7 +81,9 @@ app.post('/inbound',
 	     console.log(`/inbound= req=${req} res=${res}`);
 	     for (var key in res)
 	     {
-		 console.log(`res.${key} = ${res[key]}`);
+		 var value = res[key.toString()];
+		 console.log(`res.${key} = `);
+		 console.log(value);
 	     }
 	 }
 	);
