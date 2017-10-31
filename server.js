@@ -90,7 +90,7 @@ app.post('/inbound',
 	     for (var message in req.body.message)
 	     {
 		 console.log(ts_fmt('message= '));
-		 console.log(message);
+		 console.log(req.body.message[message]);
 	     }
 	 }
 	);
