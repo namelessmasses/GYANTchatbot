@@ -32,7 +32,29 @@ app.use(bodyParser.urlencoded({extended: false}));
 //
 // \todo First cut is a basic array of responses to probe for differnt
 // states from gyant
-// 
+//
+
+function handleTextMessage(msg)
+{
+    console.log(ts_fmt('(handleTextMessage) msg.content= ' + msg.content));
+    return true;
+}
+
+function handleQuickResponses(msg)
+{
+    console.log(ts_fmt('(handleQuickResponses) msg.headerText= ' + msg.headerText));
+    console.log(ts_fmt('(handleQuickResponses) msg.responses='));
+    for (var i in msg.responses)
+    {
+	console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
+	console.log(msg.responses[i]);
+    }
+    return true;
+}
+
+var messageTypeHandler = new Map();
+messageTypeHandler.set('text', handleTextMessages);
+messageTypeHandler.set('quickResponses', handleQuickResponses);
 
 app.get('/',
 	function (req, res)
@@ -86,11 +108,32 @@ app.post('/inbound',
 	     // \todo Find the context for this user.
 
 	     var time = moment();
-	     console.log(ts_fmt('/inbound'));
-	     for (var message in req.body.message)
+	     console.log(ts_fmt('(/inbound): BODY'));
+	     console.log(req.body);
+	     for (var i in req.body.message)
 	     {
-		 console.log(ts_fmt('message= '));
-		 console.log(req.body.message[message]);
+		 console.log(ts_fmt('(/inbound) message= '));
+		 var message = req.body.message[i];
+		 console.log(message);
+
+		 // handle free text vs. quick response
+		 // 
+		 // \todo move this into the context/state machine
+		 var messageHandler = messageTypeHandler.get(message.type)
+		 if (messageHandler)
+		 {
+		     if (!messageHandler(message))
+		     {
+			 break;
+		     }
+		 }
+		 else
+		 {
+		     // Message is of an unknown type
+		     //
+		     // \todo handle error condition: unknown message type
+		     console.log(ts_fmt(`(/inbound) ERROR: Unknown message type ${message.type}`));
+		 }
 	     }
 	 }
 	);
