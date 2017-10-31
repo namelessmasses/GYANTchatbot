@@ -8,10 +8,6 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-function talkToGYANT(output)
-{
-}
-
 app.get('/',
 	function (req, res)
 	{
@@ -51,10 +47,10 @@ app.get('/',
 		    }
 		    else
 		    {
-			output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
-				    + ': '
-				    + '\t response.statusCode= ' + response.statusCode
-				    + '\t response.statusMessage= ' + response.statusMessage);
+			res.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+				 + ': '
+				 + '\t response.statusCode= ' + response.statusCode
+				 + '\t response.statusMessage= ' + response.statusMessage);
 		    }
 		}
 	    );
