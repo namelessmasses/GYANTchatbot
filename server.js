@@ -10,76 +10,61 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 function talkToGYANT(output)
 {
-    var time = moment();
-    request(
-	{
-	    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
-	    method: 'POST',
-	    json: {
-		type: 'message',
-		timestamp: time.format('YYYY-MM-DD HH:mm:ss Z'),
-		text: "Hello",
-		address:
-		{
-		    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
-		    type: 'direct'
-		},
-		user:
-		{
-		    id: 'kiwi',
-		    name: 'Kiwi'
-		},
-		source: 'testing',
-		token: 'michael-VkZRbWhOUTF'
-	    }
-	},
-	function (error, response, body)
-	{
-	    console.log('hello response');
-	    if (error)
-	    {
-		console.log('Error sending message: ', error); 
-            }
-	    else
-	    {
-		// for (var key in response)
-		// {
-		//     var value = response[key.toString()];
-		//     console.log(`response.${key} = `);
-		//     console.log(value);
-		// }
-		output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
-			    + ': '
-			    + '\t response= ' + response + '\n'
-			    + '\t response.statusCode= ' + response.statusCode
-			    + '\t response.statusMessage= ' + response.statusMessage
-			    + '\t response.headers= ' + response.headers
-			    + '\t body= ' + body);
-	    }
-	}
-    );
 }
 
 app.get('/',
 	function (req, res)
 	{
 	    var time = moment();
-	    talkToGYANT(res);
+
+	    // \todo Save a context for this user to be retrieved on
+	    // /incoming.
+	    //
+	    // Send "hello" request to GYANT
+	    request(
+		{
+		    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
+		    method: 'POST',
+		    json: {
+			type: 'message',
+			timestamp: time.format('YYYY-MM-DD HH:mm:ss Z'),
+			text: "Hello",
+			address:
+			{
+			    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
+			    type: 'direct'
+			},
+			user:
+			{
+			    id: 'kiwi',
+			    name: 'Kiwi'
+			},
+			source: 'testing',
+			token: 'michael-VkZRbWhOUTF'
+		    }
+		},
+		function (error, response, body)
+		{
+		    if (error)
+		    {
+			console.log('Error sending message: ', error); 
+		    }
+		    else
+		    {
+			output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+				    + ': '
+				    + '\t response.statusCode= ' + response.statusCode
+				    + '\t response.statusMessage= ' + response.statusMessage);
+		    }
+		}
+	    );
 	}
        );
-
-app.post('/webhook',
-	 function (req, res)
-	 {
-	     console.log('/webhook= req=${req} res=${res}')
-	 }
-	);
-
-
 
 app.post('/inbound',
 	 function (req, res)
 	 {
+	     // Find the a context for this user.
 	     console.log(`/inbound= req=${req} res=${res}`);
 	     console.log(req.body.message);
 	     console.log(req.body.user);
