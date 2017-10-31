@@ -78,7 +78,7 @@ app.post('/webhook',
 app.post('/inbound',
 	 function (req, res)
 	 {
-	     console.log('/inbound= req=${req} res=${res}');
+	     console.log(`/inbound= req=${req} res=${res}`);
 	 }
 	);
 
