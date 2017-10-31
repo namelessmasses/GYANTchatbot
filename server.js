@@ -7,7 +7,7 @@ var app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 
-function talkToGYANT()
+function talkToGYANT(output)
 {
     var time = moment();
     request(
@@ -34,26 +34,36 @@ function talkToGYANT()
 	},
 	function (error, response, body)
 	{
-	    console.log('Got response');
 	    if (error)
 	    {
 		console.log('Error sending message: ', error); 
             }
 	    else
 	    {
-		console.log('response= ' + response);
-		console.log('body= ' + body);
+		output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+			    + ': '
+			    + '\t response= ' + response + '\n'
+			    + '\t response.statusCode= ' + response.statusCode
+			    + '\t response.statusMessage= ' + response.statusMessage
+			    + '\t response.headers= ' + response.headers
+			    + '\t body= ' + body);
 	    }
 	}
-    );
+    ).on('data',
+	 function (data)
+	 {
+	     var time = moment();
+	     console.log(time.format('YYYY-MM-DD HH:mm:ss Z') + ': '
+			 + data);
+	 }
+	);
 }
 
 app.get('/',
 	function (req, res)
 	{
 	    var time = moment();
-	    res.send('This is my bot: ' + time.format('YYYY-MM-DD HH:mm:ss Z'));
-	    talkToGYANT();
+	    talkToGYANT(res);
 	}
        );
 
