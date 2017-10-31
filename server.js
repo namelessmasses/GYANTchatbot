@@ -7,6 +7,12 @@ var app = express();
 
 var TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
 
+function ts_fmt(s)
+{
+    var time = moment();
+    return time.format(TIME_FORMAT_STRING) + ': ' + s;
+}
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -20,17 +26,22 @@ app.use(bodyParser.urlencoded({extended: false}));
 // if first function returns true then execute the second function
 // passing some form of inputs allowing an adaptable reply to GYANT
 // based in the inputs.
+//
+// \todo Maybe there is some part of this stored in the specific user
+// context?
+//
+// \todo First cut is a basic array of responses to probe for differnt
+// states from gyant
 // 
 
 app.get('/',
 	function (req, res)
 	{
-	    var time = moment();
-
 	    // \todo Save a context for this user to be retrieved on
 	    // /incoming.
 	    //
 	    // Send "hello" request to GYANT
+	    var time = moment();
 	    request(
 		{
 		    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
@@ -61,10 +72,8 @@ app.get('/',
 		    }
 		    else
 		    {
-			res.send(time.format(TIME_FORMAT_STRING)
-				 + ': '
-				 + '\t response.statusCode= ' + response.statusCode
-				 + '\t response.statusMessage= ' + response.statusMessage);
+			res.send(ts_fmt('response.statusCode= ' + response.statusCode
+					+ 'response.statusMessage= ' + response.statusMessage);
 		    }
 		}
 	    );
@@ -74,12 +83,14 @@ app.get('/',
 app.post('/inbound',
 	 function (req, res)
 	 {
-	     // \todo Find the a context for this user.
+	     // \todo Find the context for this user.
 
 	     var time = moment();
-	     console.log(time.format(TIME_FORMAT_STRING) + `: /inbound= req=${req} res=${res}`);
-	     console.log(req.body.message);
-	     console.log(req.body.user);
+	     console.log(ts_fmt('/inbound'));
+	     for (var message in req.body.message)
+	     {
+		 console.log(ts_fmt('message= ' + message));
+	     }
 	 }
 	);
 
