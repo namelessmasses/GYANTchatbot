@@ -5,8 +5,22 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var app = express();
 
+var TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+// \todo Maintain a context for each 'user'
+
+// \todo Build a collection of incoming matches and responses to send. Maybe a list of
+// pairs
+//
+//   (function (message) -> bool, function (???) -> void)
+//
+// if first function returns true then execute the second function
+// passing some form of inputs allowing an adaptable reply to GYANT
+// based in the inputs.
+// 
 
 app.get('/',
 	function (req, res)
@@ -23,7 +37,7 @@ app.get('/',
 		    method: 'POST',
 		    json: {
 			type: 'message',
-			timestamp: time.format('YYYY-MM-DD HH:mm:ss Z'),
+			timestamp: time.format(TIME_FORMAT_STRING),
 			text: "Hello",
 			address:
 			{
@@ -47,7 +61,7 @@ app.get('/',
 		    }
 		    else
 		    {
-			res.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+			res.send(time.format(TIME_FORMAT_STRING)
 				 + ': '
 				 + '\t response.statusCode= ' + response.statusCode
 				 + '\t response.statusMessage= ' + response.statusMessage);
@@ -60,8 +74,10 @@ app.get('/',
 app.post('/inbound',
 	 function (req, res)
 	 {
-	     // Find the a context for this user.
-	     console.log(`/inbound= req=${req} res=${res}`);
+	     // \todo Find the a context for this user.
+
+	     var time = moment();
+	     console.log(time.format(TIME_FORMAT_STRING) + `: /inbound= req=${req} res=${res}`);
 	     console.log(req.body.message);
 	     console.log(req.body.user);
 	 }
