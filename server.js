@@ -73,7 +73,7 @@ app.get('/',
 		    else
 		    {
 			res.send(ts_fmt('response.statusCode= ' + response.statusCode
-					+ 'response.statusMessage= ' + response.statusMessage);
+					+ 'response.statusMessage= ' + response.statusMessage));
 		    }
 		}
 	    );
