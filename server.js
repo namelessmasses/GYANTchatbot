@@ -53,7 +53,7 @@ function handleQuickResponses(msg)
 }
 
 var messageTypeHandler = new Map();
-messageTypeHandler.set('text', handleTextMessages);
+messageTypeHandler.set('text', handleTextMessage);
 messageTypeHandler.set('quickResponses', handleQuickResponses);
 
 app.get('/',
