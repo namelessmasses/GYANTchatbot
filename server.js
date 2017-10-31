@@ -48,7 +48,7 @@ function talkToGYANT(output)
 		//     console.log(`response.${key} = `);
 		//     console.log(value);
 		// }
-		Output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
+		output.send(time.format('YYYY-MM-DD HH:mm:ss Z')
 			    + ': '
 			    + '\t response= ' + response + '\n'
 			    + '\t response.statusCode= ' + response.statusCode
