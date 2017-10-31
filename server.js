@@ -21,7 +21,7 @@ function talkToGYANT(output)
 		text: "Hello",
 		address:
 		{
-		    serviceUrl: 'https://gyantchatbot.azurewebsites.net',
+		    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
 		    type: 'direct'
 		},
 		user:
@@ -72,6 +72,13 @@ app.post('/webhook',
 	 function (req, res)
 	 {
 	     console.log('/webhook= req=${req} res=${res}')
+	 }
+	);
+
+app.post('/inbound',
+	 function (req, res)
+	 {
+	     console.log('/inbound= req=${req} res=${res}');
 	 }
 	);
 
