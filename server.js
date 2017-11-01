@@ -70,23 +70,23 @@ function sendTextToGYANT(userid, text)
 // \todo Store content and handlers separate from code and load at
 // startup
 // 
-var contentHandlers = new Map();
-contentHandlers.set('how old are you in human years?',
-		    function ()
-		    {
-			sendTextToGYANT('42 years old')
-			return true;
-		    });
-contentHandlers.set('And where do you live? (city and state)',
-		    function ()
-		    {
-			sendTextToGYANT('San Francisco');
-			return true;
-		    });
+var g_contentHandlers = new Map();
+g_contentHandlers.set('how old are you in human years?',
+		      function ()
+		      {
+			  sendTextToGYANT('42 years old')
+			  return true;
+		      });
+g_contentHandlers.set('And where do you live? (city and state)',
+		      function ()
+		      {
+			  sendTextToGYANT('San Francisco');
+			  return true;
+		      });
 
 function handleTextMessage(msg)
 {
-    var contentHandler = contentHandlers.get(msg.content);
+    var contentHandler = g_contentHandlers.get(msg.content);
     if (contentHandler)
     {
 	return contentHandler();
@@ -110,6 +110,18 @@ function handleQuickResponses(msg)
 	console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
 	console.log(msg.responses[i]);
     }
+
+    // Randomly choose a quick response.
+    // Random number in the range [0, msg.responses.length - 1]
+    var randomIndex = (Math.random() * msg.responses) - 1;
+    console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
+
+    var randomResponse = msg.responses[i];
+    console.log(ts_fmt('(handleQuickResponses) response='));
+    console.log(randomResponse);
+
+    
+    sendTextToGYANT(msg.user.name, randomResponse.content);
     return true;
 }
 
