@@ -102,6 +102,7 @@ function UserContext(userid)
 	//
 	console.log(ts_fmt('(handleTextMessage) INFO no handler for content - SKIPPING. msg.content='));
 	console.log(msg.content);
+	return false;
     }
 
     this.handleQuickResponse = function (msg)
@@ -145,7 +146,8 @@ function UserContext(userid)
 	    // Message is of an unknown type
 	    //
 	    // \todo handle error condition: unknown message type
-	    console.log(ts_fmt(`(/inbound) ERROR: Unknown message type ${message.type}`));
+	    console.log(ts_fmt(`(handleMessage) ERROR: Unknown message type [${message.type}]`));
+	    return false;
 	}
     }
 }
