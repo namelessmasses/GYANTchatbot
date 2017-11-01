@@ -120,7 +120,7 @@ function UserContext(userid)
 
 	// Randomly choose a quick response.
 	// Random number in the range [0, msg.responses.length - 1]
-	var randomIndex = (Math.random() * msg.responses) - 1;
+	var randomIndex = (Math.random() * msg.responses.length) - 1;
 	console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
 
 	var randomResponse = msg.responses[i];
