@@ -121,7 +121,7 @@ function handleQuickResponses(msg)
     console.log(randomResponse);
 
     
-    sendTextToGYANT(msg.user.name, randomResponse.content);
+    sendTextToGYANT(msg.user.name, randomResponse.responseContext);
     return true;
 }
 
