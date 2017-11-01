@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 // \todo Move to an object than maintains the user ID for different
 // users
-function sendTextToGYANT(text)
+function sendTextToGYANT(userid, text)
 {
     console.log(ts_fmt(`(sendTextToGYANT) sending [${text}]`));
     var time = moment();
@@ -37,8 +37,8 @@ function sendTextToGYANT(text)
 		},
 		user:
 		{
-		    id: 'kiwi',
-		    name: 'Kiwi'
+		    id: userid,
+		    name: userid
 		},
 		source: 'testing',
 		token: 'michael-VkZRbWhOUTF'
@@ -120,11 +120,29 @@ messageTypeHandler.set('quickResponses', handleQuickResponses);
 app.get('/',
 	function (req, res)
 	{
+	    // Extract an userid and text to send to GYANT
+	    //
+
+	    var userid = req.param('userid');
+	    if (!userid)
+	    {
+		userid = 'kiwi';
+	    }
+	    console.log(ts_fmt(`(/) userid= ${userid}`));
+
+	    var  textToSend = req.param('text');
+	    if (!textToSend)
+	    {
+		textToSend = 'Hello';
+	    }
+	    console.log(ts_fmt(`(/) textToSend= ${textToSend}`));
+
 	    // \todo Save a context for this user to be retrieved on
-	    // /incoming. What uniquely identifies a 'user'?
+	    // /incoming. 
 
 	    // Start by saying 'hello' to GYANT
-	    sendTextToGYANT('Hello')
+	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${text}`));
+	    sendTextToGYANT(userid, text)
 	}
        );
 
