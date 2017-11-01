@@ -115,6 +115,10 @@ function UserContext(userid, res)
     addContentRule(this.contentHandlers,
 		   'Which countries have you traveled to?\nPlease list all of them:',
 		   'England');
+
+    addContentRule(this.contentHandlers,
+		   'Please describe your symptoms for me:',
+		   'My hands hurt');
     
     this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
 			     function (userContext)
