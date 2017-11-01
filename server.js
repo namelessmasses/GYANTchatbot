@@ -114,7 +114,7 @@ function UserContext(userid, res)
 
     addContentRule(this.contentHandlers,
 		   'Which countries have you traveled to?\nPlease list all of them:',
-		   'Russia');
+		   'England');
     
     this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
 			     function (userContext)
