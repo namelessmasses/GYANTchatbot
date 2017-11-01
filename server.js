@@ -54,7 +54,7 @@ function sendTextToGYANT(text)
 	    {
 		console.log(ts_fmt('(sendTextToGYANT.response) '
 				   + 'sent = [' + text + '] '
-				   + 'response.statusCode= ' + response.statusCode
+				   + 'response.statusCode= ' + response.statusCode + ' '
 				   + 'response.statusMessage= ' + response.statusMessage));
 	    }
 	}
@@ -67,12 +67,20 @@ function sendTextToGYANT(text)
 // context?
 //
 
+// \todo Store content and handlers separate from code and load at
+// startup
+// 
 var contentHandlers = new Map();
 contentHandlers.set('how old are you in human years?',
 		    function ()
 		    {
-			// Send age to GYANT
 			sendTextToGYANT('42 years old')
+			return true;
+		    });
+contentHandlers.set('And where do you live? (city and state)',
+		    function ()
+		    {
+			sendTextToGYANT('San Francisco');
 			return true;
 		    });
 
