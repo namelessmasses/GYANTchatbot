@@ -206,8 +206,6 @@ app.get('/userid/:userid/text/:text',
 	    }
 	    console.log(ts_fmt(`(/) textToSend= ${textToSend}`));
 
-	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${textToSend}`));
-
 	    // Check for an existing userContext and create one if not
 	    // present for this user.
 	    var userContext = g_userContexts.get(userid);
