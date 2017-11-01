@@ -178,6 +178,7 @@ app.get('/userid/:userid/text/:text',
 	    if (!userContext)
 	    {
 		userContext = new UserContext(userid);
+		g_userContexts.set(userid, userContext);
 	    }
 	    userContext.sendTextToGYANT(textToSend);
 	}
