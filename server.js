@@ -91,6 +91,13 @@ function UserContext(userid)
 				 return true;
 			     });
 
+    this.contentHandlers.set('What\'s your height in feet?\nFor example: 5\'7" or 5 ft 7\n',
+			     function (userContext)
+			     {
+				 userContext.sendTextToGYANT('5\'10"');
+				 return true;
+			     });
+
     this.text = function (msg)
     {
 	var contentHandler = this.contentHandlers.get(msg.content);
