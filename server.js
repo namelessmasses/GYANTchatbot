@@ -16,30 +16,63 @@ function ts_fmt(s)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+// \todo Move to an object than maintains the user ID for different
+// users
+function sendTextToGYANT(text)
+{
+    console.log(ts_fmt(`(sendTextToGYANT) sending [${text}]`));
+    var time = moment();
+    request(
+	{
+	    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
+	    method: 'POST',
+	    json: {
+		type: 'message',
+		timestamp: time.format(TIME_FORMAT_STRING),
+		text: text,
+		address:
+		{
+		    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
+		    type: 'direct'
+		},
+		user:
+		{
+		    id: 'kiwi',
+		    name: 'Kiwi'
+		},
+		source: 'testing',
+		token: 'michael-VkZRbWhOUTF'
+	    }
+	},
+	function (error, response, body)
+	{
+	    if (error)
+	    {
+		console.log('Error sending message: ', error); 
+	    }
+	    else
+	    {
+		console.log(ts_fmt('(sendTextToGYANT.response) '
+				   + 'sent = [' + text + '] '
+				   + 'response.statusCode= ' + response.statusCode
+				   + 'response.statusMessage= ' + response.statusMessage));
+	    }
+	}
+    );
+}
+
 // \todo Maintain a context for each 'user'
 
-// \todo Build a collection of incoming matches and responses to send. Maybe a list of
-// pairs
-//
-//   (function (message) -> bool, function (???) -> void)
-//
-// if first function returns true then execute the second function
-// passing some form of inputs allowing an adaptable reply to GYANT
-// based in the inputs.
-//
 // \todo Maybe there is some part of this stored in the specific user
 // context?
-//
-// \todo First cut is a basic array of responses to probe for differnt
-// states from gyant
 //
 
 var contentHandlers = new Map();
 contentHandlers.set('how old are you in human years?',
 		    function ()
 		    {
-			// \todo Send age to GYANT
-			console.log(ts_fmt('(age handler) - sending age to GYANT'));
+			// Send age to GYANT
+			sendTextToGYANT('42 years old')
 			return true;
 		    });
 
@@ -80,45 +113,10 @@ app.get('/',
 	function (req, res)
 	{
 	    // \todo Save a context for this user to be retrieved on
-	    // /incoming.
-	    //
-	    // Send "hello" request to GYANT
-	    var time = moment();
-	    request(
-		{
-		    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
-		    method: 'POST',
-		    json: {
-			type: 'message',
-			timestamp: time.format(TIME_FORMAT_STRING),
-			text: "Hello",
-			address:
-			{
-			    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
-			    type: 'direct'
-			},
-			user:
-			{
-			    id: 'kiwi',
-			    name: 'Kiwi'
-			},
-			source: 'testing',
-			token: 'michael-VkZRbWhOUTF'
-		    }
-		},
-		function (error, response, body)
-		{
-		    if (error)
-		    {
-			console.log('Error sending message: ', error); 
-		    }
-		    else
-		    {
-			res.send(ts_fmt('response.statusCode= ' + response.statusCode
-					+ 'response.statusMessage= ' + response.statusMessage));
-		    }
-		}
-	    );
+	    // /incoming. What uniquely identifies a 'user'?
+
+	    // Start by saying 'hello' to GYANT
+	    sendTextToGYANT('Hello')
 	}
        );
 
