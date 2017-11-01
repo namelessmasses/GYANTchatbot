@@ -27,7 +27,12 @@ function UserContext(userid, res)
     {
 	this.res.write(ts_fmt(`[${user}]: ${text}\n`));
     }
-    
+
+    this.end() = function ()
+    {
+	this.res.end();
+    }
+
     this.sendTextToGYANT = function (text)
     {
 	console.log(ts_fmt(`(sendTextToGYANT) userid=[${this.userid}] sending [${text}]`));
@@ -113,6 +118,13 @@ function UserContext(userid, res)
 				 return true;
 			     });
 
+    this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
+			     function (userContext)
+			     {
+				 userContext.end();
+				 return true;
+			     });
+    
     this.text = function (msg)
     {
 	this.display('GYANT', msg.content);
@@ -178,7 +190,7 @@ function UserContext(userid, res)
 	    // Message is of an unknown type
 	    //
 	    // \todo handle error condition: unknown message type
-	    console.log(ts_fmt(`(handleMessage) ERROR: Unknown message type [${message.type}]`));
+	    console.error(ts_fmt(`(handleMessage) ERROR: Unknown message type [${message.type}]`));
 	    return false;
 	}
     }
@@ -233,7 +245,7 @@ app.post('/inbound',
 	     var userContext = g_userContexts.get(req.body.user.name);
 	     if (!userContext)
 	     {
-		 console.log(ts_fmt(`(/inbound): ERROR - Cannot find user context for username ${req.body.user.name}`));
+		 console.error(ts_fmt(`(/inbound): ERROR - Cannot find user context for username ${req.body.user.name}`));
 		 return;
 	     }
 
