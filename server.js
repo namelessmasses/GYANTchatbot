@@ -16,29 +16,6 @@ function ts_fmt(s)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-// \todo Store content and handlers separate from code and load at
-// startup. Perhaps just map /regex/ with text with which to reply?
-// 
-var g_contentHandlers = new Map();
-g_contentHandlers.set('how old are you in human years?',
-		      function (userContext)
-		      {
-			  userContext.sendTextToGYANT('42 years old')
-			  return true;
-		      });
-g_contentHandlers.set('All clear?',
-		      function (userContext)
-		      {
-			  userContext.sendTextToGYANT('yes')
-			  return true;
-		      });
-g_contentHandlers.set('And where do you live? (city and state)',
-		      function (userContext)
-		      {
-			  userContext.sendTextToGYANT('San Francisco');
-			  return true;
-		      });
-
 var g_userContexts = new Map();
 
 function UserContext(userid)
@@ -88,12 +65,35 @@ function UserContext(userid)
 	);
     }
 
+    // \todo Store content and handlers separate from code and load at
+    // startup. Perhaps just map /regex/ with text with which to reply?
+    // 
+    this.contentHandlers = new Map();
+    this.contentHandlers.set('how old are you in human years?',
+			     function ()
+			     {
+				 this.sendTextToGYANT('42 years old')
+				 return true;
+			     });
+    this.contentHandlers.set('All clear?',
+			     function (userContext)
+			     {
+				 this.sendTextToGYANT('yes')
+				 return true;
+			     });
+    this.contentHandlers.set('And where do you live? (city and state)',
+			     function (userContext)
+			     {
+				 this..sendTextToGYANT('San Francisco');
+				 return true;
+			     });
+
     this.handleTextMessage = function (msg)
     {
-	var contentHandler = g_contentHandlers.get(msg.content);
+	var contentHandler = this.contentHandlers.get(msg.content);
 	if (contentHandler)
 	{
-	    return contentHandler(this);
+	    return contentHandler();
 	}
 
 	// if no content handler is available for the input from GYANT
