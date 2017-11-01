@@ -84,7 +84,7 @@ function UserContext(userid)
     this.contentHandlers.set('And where do you live? (city and state)',
 			     function (userContext)
 			     {
-				 this..sendTextToGYANT('San Francisco');
+				 this.sendTextToGYANT('San Francisco');
 				 return true;
 			     });
 
