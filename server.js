@@ -141,7 +141,7 @@ app.get('/userid/:userid/text/:text',
 	    // /incoming. 
 
 	    // Start by saying 'hello' to GYANT
-	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${text}`));
+	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${textToSend}`));
 	    sendTextToGYANT(userid, textToSend)
 	}
        );
