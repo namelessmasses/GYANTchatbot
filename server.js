@@ -18,10 +18,16 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 var g_userContexts = new Map();
 
-function UserContext(userid)
+function UserContext(userid, res)
 {
     this.userid = userid;
+    this.res = res;
 
+    this.display = function (user, text)
+    {
+	this.res.write(ts_fmt(`[${user}]: ${text}\n`));
+    }
+    
     this.sendTextToGYANT = function (text)
     {
 	console.log(ts_fmt(`(sendTextToGYANT) userid=[${this.userid}] sending [${text}]`));
@@ -63,6 +69,8 @@ function UserContext(userid)
 		}
 	    }
 	);
+
+	this.display(this.userid, text);
     }
 
     // \todo Store content and handlers separate from code and load at
@@ -107,6 +115,8 @@ function UserContext(userid)
 
     this.text = function (msg)
     {
+	this.display('GYANT', msg.content);
+	
 	var contentHandler = this.contentHandlers.get(msg.content);
 	if (contentHandler)
 	{
@@ -124,10 +134,13 @@ function UserContext(userid)
 
     this.quickResponses = function (msg)
     {
+	this.display('GYANT', msg.headerText);
 	console.log(ts_fmt('(handleQuickResponses) msg.headerText= ' + msg.headerText));
 	console.log(ts_fmt('(handleQuickResponses) msg.responses='));
 	for (var i in msg.responses)
 	{
+	    this.display('GYANT', msg.responses[i].content);
+	    
 	    console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
 	    console.log(msg.responses[i]);
 	}
@@ -174,6 +187,8 @@ function UserContext(userid)
 app.get('/userid/:userid/text/:text',
 	function (req, res)
 	{
+	    res.setHeader('Content-Type', 'text/plain');
+	    
 	    // Extract an userid and text to send to GYANT
 	    //
 
@@ -198,8 +213,12 @@ app.get('/userid/:userid/text/:text',
 	    var userContext = g_userContexts.get(userid);
 	    if (!userContext)
 	    {
-		userContext = new UserContext(userid);
+		userContext = new UserContext(userid, res);
 		g_userContexts.set(userid, userContext);
+	    }
+	    else
+	    {
+		userContext.res = res;
 	    }
 	    userContext.sendTextToGYANT(textToSend);
 	}
