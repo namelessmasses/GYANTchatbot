@@ -81,64 +81,76 @@ function UserContext(userid, res)
     // \todo Store content and handlers separate from code and load at
     // startup. Perhaps just map /regex/ with text with which to reply?
     // 
-    this.contentHandlers = new Map();
+    this.contentHandlers = {};
 
-    function addContentRule(map, match, response)
+    function addContentRule(col, match, response)
     {
-	map.set(match,
-		function (userContext)
-		{
-		    userContext.sendTextToGYANT(response);
-		    return true;
-		});
+	col[match] = function (userContext)
+	{
+	    userContext.sendTextToGYANT(response);
+	    return true;
+	};
     }
+
+    this.findContentHandler = function (s)
+    {
+	for (const [match, handler] of Object.entries(this.contentHandlers))
+	{
+	    var re = new RegExp(match);
+	    if (re.test(s))
+	    {
+		return handler;
+	    }
+	}
+
+	return null;
+    }
+    
     addContentRule(this.contentHandlers,
-		   'how old are you in human years?',
+		   'how old are you in human years',
 		   '42 years old');
 
     addContentRule(this.contentHandlers,
-		   'All clear?',
+		   'All clear',
 		   'yes');
 
     addContentRule(this.contentHandlers,
-		   'And where do you live? (city and state)',
+		   'where do you live',
 		   'San Francisco');
 
     addContentRule(this.contentHandlers,
-		   'What\'s your height in feet?\nFor example: 5\'7" or 5 ft 7\n',
+		   'What\'s your height in feet',
 		   '5\'10"');
 
     addContentRule(this.contentHandlers,
-		   'And your weight in pounds (lbs) \n?',
+		   'your weight in pounds',
 		   '150');
 
     addContentRule(this.contentHandlers,
-		   'Which countries have you traveled to?\nPlease list all of them:',
+		   'Which countries have you traveled to',
 		   'England');
 
     addContentRule(this.contentHandlers,
-		   'Please describe your symptoms for me:',
+		   'Please describe your symptoms for me',
 		   'My hands hurt');
 
-    this.contentHandlers.set('From your symptom description, the best match in my database is:',
-			     function (userContext)
-			     {
-				 userContext.end();
-				 return true;
-			     });
-
-    this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
-			     function (userContext)
-			     {
-				 userContext.end();
-				 return true;
-			     });
+    this.contentHandlers['From your symptom description, the best match in my database is'] = function (userContext)
+    {
+	userContext.end();
+	return true;
+    };
+    
+    this.contentHandlers['Consulting my database now about your answers'] = function (userContext)
+    {
+	userContext.end();
+	return true;
+    };
 
     this.text = function (msg)
     {
 	this.display('GYANT', msg.content);
 	
-	var contentHandler = this.contentHandlers.get(msg.content);
+	var contentHandler = this.findContentHandler(msg.content);
 	if (contentHandler)
 	{
 	    return contentHandler(this);
