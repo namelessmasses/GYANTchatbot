@@ -117,20 +117,20 @@ var messageTypeHandler = new Map();
 messageTypeHandler.set('text', handleTextMessage);
 messageTypeHandler.set('quickResponses', handleQuickResponses);
 
-app.get('/',
+app.get('/userid/:userid/text/:text',
 	function (req, res)
 	{
 	    // Extract an userid and text to send to GYANT
 	    //
 
-	    var userid = req.param('userid');
+	    var userid = req.params.userid
 	    if (!userid)
 	    {
 		userid = 'kiwi';
 	    }
 	    console.log(ts_fmt(`(/) userid= ${userid}`));
 
-	    var  textToSend = req.param('text');
+	    var  textToSend = req.params.text;
 	    if (!textToSend)
 	    {
 		textToSend = 'Hello';
@@ -142,7 +142,7 @@ app.get('/',
 
 	    // Start by saying 'hello' to GYANT
 	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${text}`));
-	    sendTextToGYANT(userid, text)
+	    sendTextToGYANT(userid, textToSend)
 	}
        );
 
