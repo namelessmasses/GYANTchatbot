@@ -28,7 +28,7 @@ function UserContext(userid, res)
 	this.res.write(ts_fmt(`[${user}]: ${text}\n`));
     }
 
-    this.end() = function ()
+    this.end = function ()
     {
 	this.res.end();
     }
