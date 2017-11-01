@@ -83,48 +83,46 @@ function UserContext(userid, res)
     // 
     this.contentHandlers = new Map();
 
-    this.contentHandlers.set('how old are you in human years?',
-			     function (userContext)
-			     {
-				 userContext.sendTextToGYANT('42 years old')
-				 return true;
-			     });
+    function addContentRule(map, match, response)
+    {
+	map.set(match,
+		function (userContext)
+		{
+		    userContext.sendTextToGYANT(response);
+		    return true;
+		});
+    }
+    addContentRule(this.contentHandlers,
+		   'how old are you in human years?',
+		   '42 years old');
 
-    this.contentHandlers.set('All clear?',
-			     function (userContext)
-			     {
-				 userContext.sendTextToGYANT('yes')
-				 return true;
-			     });
+    addContentRule(this.contentHandlers,
+		   'All clear?',
+		   'yes');
 
-    this.contentHandlers.set('And where do you live? (city and state)',
-			     function (userContext)
-			     {
-				 userContext.sendTextToGYANT('San Francisco');
-				 return true;
-			     });
+    addContentRule(this.contentHandlers,
+		   'And where do you live? (city and state)',
+		   'San Francisco');
 
-    this.contentHandlers.set('What\'s your height in feet?\nFor example: 5\'7" or 5 ft 7\n',
-			     function (userContext)
-			     {
-				 userContext.sendTextToGYANT('5\'10"');
-				 return true;
-			     });
+    addContentRule(this.contentHandlers,
+		   'What\'s your height in feet?\nFor example: 5\'7" or 5 ft 7\n',
+		   '5\'10"');
 
-    this.contentHandlers.set('And your weight in pounds (lbs) \n?',
-			     function (userContext)
-			     {
-				 userContext.sendTextToGYANT('150');
-				 return true;
-			     });
+    addContentRule(this.contentHandlers,
+		   'And your weight in pounds (lbs) \n?',
+		   '150');
 
+    addContentRule(this.contentHandlers,
+		   'Which countries have you traveled to?\nPlease list all of them:'
+		   'Russia');
+    
     this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
 			     function (userContext)
 			     {
 				 userContext.end();
 				 return true;
 			     });
-    
+
     this.text = function (msg)
     {
 	this.display('GYANT', msg.content);
