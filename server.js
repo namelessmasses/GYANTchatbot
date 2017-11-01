@@ -70,21 +70,21 @@ function UserContext(userid)
     // 
     this.contentHandlers = new Map();
     this.contentHandlers.set('how old are you in human years?',
-			     function ()
+			     function (userContext)
 			     {
-				 this.sendTextToGYANT('42 years old')
+				 userContext.sendTextToGYANT('42 years old')
 				 return true;
-			     });
+			     }.bind(this));
     this.contentHandlers.set('All clear?',
 			     function (userContext)
 			     {
-				 this.sendTextToGYANT('yes')
+				 userContext.sendTextToGYANT('yes')
 				 return true;
-			     });
+			     }.bind(this));
     this.contentHandlers.set('And where do you live? (city and state)',
 			     function (userContext)
 			     {
-				 this.sendTextToGYANT('San Francisco');
+				 userContext.sendTextToGYANT('San Francisco');
 				 return true;
 			     });
 
@@ -93,7 +93,7 @@ function UserContext(userid)
 	var contentHandler = this.contentHandlers.get(msg.content);
 	if (contentHandler)
 	{
-	    return contentHandler();
+	    return contentHandler(this);
 	}
 
 	// if no content handler is available for the input from GYANT
@@ -129,8 +129,8 @@ function UserContext(userid)
     }
 
     this.messageTypeHandlers = new Map();
-    this.messageTypeHandlers.set('text', this.handleTextMessage);
-    this.messageTypeHandlers.set('quickResponses', this.handleQuickResponses);
+    this.messageTypeHandlers.set('text', this.handleTextMessage.bind(this));
+    this.messageTypeHandlers.set('quickResponses', this.handleQuickResponses.bind(this));
 
     this.handleMessage = function (message)
     {
