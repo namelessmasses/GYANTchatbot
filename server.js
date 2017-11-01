@@ -125,7 +125,8 @@ function UserContext(userid, res)
 			     {
 				 userContext.end();
 				 return true;
-			     }
+			     });
+
     this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
 			     function (userContext)
 			     {
