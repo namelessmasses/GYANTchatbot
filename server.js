@@ -16,124 +16,139 @@ function ts_fmt(s)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-// \todo Move to an object than maintains the user ID for different
-// users
-function sendTextToGYANT(userid, text)
-{
-    console.log(ts_fmt(`(sendTextToGYANT) sending [${text}]`));
-    var time = moment();
-    request(
-	{
-	    url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
-	    method: 'POST',
-	    json: {
-		type: 'message',
-		timestamp: time.format(TIME_FORMAT_STRING),
-		text: text,
-		address:
-		{
-		    serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
-		    type: 'direct'
-		},
-		user:
-		{
-		    id: userid,
-		    name: userid
-		},
-		source: 'testing',
-		token: 'michael-VkZRbWhOUTF'
-	    }
-	},
-	function (error, response, body)
-	{
-	    if (error)
-	    {
-		console.log('Error sending message: ', error); 
-	    }
-	    else
-	    {
-		console.log(ts_fmt('(sendTextToGYANT.response) '
-				   + 'sent = [' + text + '] '
-				   + 'response.statusCode= ' + response.statusCode + ' '
-				   + 'response.statusMessage= ' + response.statusMessage));
-	    }
-	}
-    );
-}
-
-// \todo Maintain a context for each 'user'
-
-// \todo Maybe there is some part of this stored in the specific user
-// context?
-//
-
 // \todo Store content and handlers separate from code and load at
-// startup
+// startup. Perhaps just map /regex/ with text with which to reply?
 // 
 var g_contentHandlers = new Map();
 g_contentHandlers.set('how old are you in human years?',
-		      function ()
+		      function (userContext)
 		      {
-			  sendTextToGYANT('42 years old')
+			  userContext.sendTextToGYANT('42 years old')
 			  return true;
 		      });
 g_contentHandlers.set('All clear?',
-		      function ()
+		      function (userContext)
 		      {
-			  sendTextToGYANT('yes')
+			  userContext.sendTextToGYANT('yes')
 			  return true;
 		      });
 g_contentHandlers.set('And where do you live? (city and state)',
-		      function ()
+		      function (userContext)
 		      {
-			  sendTextToGYANT('San Francisco');
+			  userContext.sendTextToGYANT('San Francisco');
 			  return true;
 		      });
 
-function handleTextMessage(msg)
+var g_userContexts = new Map();
+
+function UserContext(userid)
 {
-    var contentHandler = g_contentHandlers.get(msg.content);
-    if (contentHandler)
+    this.userid = userid;
+
+    this.sendTextToGYANT = function (text)
     {
-	return contentHandler();
+	console.log(ts_fmt(`(sendTextToGYANT) userid=[${this.userid}] sending [${text}]`));
+	var time = moment();
+	request(
+	    {
+		url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
+		method: 'POST',
+		json: {
+		    type: 'message',
+		    timestamp: time.format(TIME_FORMAT_STRING),
+		    text: text,
+		    address:
+		    {
+			serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
+			type: 'direct'
+		    },
+		    user:
+		    {
+			id: this.userid,
+			name: this.userid
+		    },
+		    source: 'testing',
+		    token: 'michael-VkZRbWhOUTF'
+		}
+	    },
+	    function (error, response, body)
+	    {
+		if (error)
+		{
+		    console.log('Error sending message: ', error); 
+		}
+		else
+		{
+		    console.log(ts_fmt('(sendTextToGYANT.response) '
+				       + 'sent = [' + text + '] '
+				       + 'response.statusCode= ' + response.statusCode + ' '
+				       + 'response.statusMessage= ' + response.statusMessage));
+		}
+	    }
+	);
     }
 
-    // if no content handler is available for the input from GYANT
-    // then log the content and allow processing of any
-    // messages/responses/content that follows after this
-    //
-    console.log(ts_fmt('(handleTextMessage) INFO no handler for content - SKIPPING. msg.content='));
-    console.log(msg.content);
-    return true;
-}
-
-function handleQuickResponses(msg)
-{
-    console.log(ts_fmt('(handleQuickResponses) msg.headerText= ' + msg.headerText));
-    console.log(ts_fmt('(handleQuickResponses) msg.responses='));
-    for (var i in msg.responses)
+    this.handleTextMessage = function (msg)
     {
-	console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
-	console.log(msg.responses[i]);
+	var contentHandler = g_contentHandlers.get(msg.content);
+	if (contentHandler)
+	{
+	    return contentHandler(this);
+	}
+
+	// if no content handler is available for the input from GYANT
+	// then log the content and allow processing of any
+	// messages/responses/content that follows after this
+	//
+	console.log(ts_fmt('(handleTextMessage) INFO no handler for content - SKIPPING. msg.content='));
+	console.log(msg.content);
     }
 
-    // Randomly choose a quick response.
-    // Random number in the range [0, msg.responses.length - 1]
-    var randomIndex = (Math.random() * msg.responses) - 1;
-    console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
+    this.handleQuickResponse = function (msg)
+    {
+	console.log(ts_fmt('(handleQuickResponses) msg.headerText= ' + msg.headerText));
+	console.log(ts_fmt('(handleQuickResponses) msg.responses='));
+	for (var i in msg.responses)
+	{
+	    console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
+	    console.log(msg.responses[i]);
+	}
 
-    var randomResponse = msg.responses[i];
-    console.log(ts_fmt('(handleQuickResponses) response='));
-    console.log(randomResponse);
+	// Randomly choose a quick response.
+	// Random number in the range [0, msg.responses.length - 1]
+	var randomIndex = (Math.random() * msg.responses) - 1;
+	console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
 
-    
-    sendTextToGYANT(msg.user.name, randomResponse.responseContext);
-    return true;
+	var randomResponse = msg.responses[i];
+	console.log(ts_fmt('(handleQuickResponses) response='));
+	console.log(randomResponse);
+
+	this.sendTextToGYANT(randomResponse.responseContext);
+	return true;
+    }
+
+    this.messageTypeHandlers = new Map();
+    this.messageTypeHandlers.set('text', this.handleTextMessage);
+    this.messageTypeHandlers.set('quickResponses', this.handleQuickResponses);
+
+    this.handleMessage = function (message)
+    {
+	// Delegate the handler for this message type. If no
+	// handler is present log an error and continue.
+	var messageHandler = this.messageTypeHandlers.get(message.type)
+	if (messageHandler)
+	{
+	    return messageHandler(message);
+	}
+	else
+	{
+	    // Message is of an unknown type
+	    //
+	    // \todo handle error condition: unknown message type
+	    console.log(ts_fmt(`(/inbound) ERROR: Unknown message type ${message.type}`));
+	}
+    }
 }
-
-var messageTypeHandler = new Map();
-messageTypeHandler.set('text', handleTextMessage);
-messageTypeHandler.set('quickResponses', handleQuickResponses);
 
 app.get('/userid/:userid/text/:text',
 	function (req, res)
@@ -155,43 +170,40 @@ app.get('/userid/:userid/text/:text',
 	    }
 	    console.log(ts_fmt(`(/) textToSend= ${textToSend}`));
 
-	    // \todo Save a context for this user to be retrieved on
-	    // /incoming. 
-
-	    // Start by saying 'hello' to GYANT
 	    res.send(ts_fmt(`Starting session to GYANT for userid=${userid}; sending ${textToSend}`));
-	    sendTextToGYANT(userid, textToSend)
+
+	    // Check for an existing userContext and create one if not
+	    // present for this user.
+	    var userContext = g_userContexts.get(userid);
+	    if (!userContext)
+	    {
+		userContext = new UserContext(userid);
+	    }
+	    userContext.sendTextToGYANT(textToSend);
 	}
        );
 
 app.post('/inbound',
 	 function (req, res)
 	 {
-	     // \todo Find the context for this user.
-
 	     var time = moment();
 	     console.log(ts_fmt('(/inbound): BODY'));
 	     console.log(req.body);
+
+	     // Find the context for this user.
+	     var userContext = g_userContexts.get(req.body.user.name);
+	     if (!userContext)
+	     {
+		 console.log(ts_fmt(`(/inbound): ERROR - Cannot find user context for username ${req.body.user.name}`));
+		 return;
+	     }
+
 	     for (var i in req.body.message)
 	     {
 		 var message = req.body.message[i];
-
-		 // Delegate the handler for this message type. If no
-		 // handler is present log an error and continue.
-		 var messageHandler = messageTypeHandler.get(message.type)
-		 if (messageHandler)
+		 if (userContext.handleMessage(message))
 		 {
-		     if (!messageHandler(message))
-		     {
-			 break;
-		     }
-		 }
-		 else
-		 {
-		     // Message is of an unknown type
-		     //
-		     // \todo handle error condition: unknown message type
-		     console.log(ts_fmt(`(/inbound) ERROR: Unknown message type ${message.type}`));
+		     break;
 		 }
 	     }
 	 }
