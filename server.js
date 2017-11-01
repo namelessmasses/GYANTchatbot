@@ -33,8 +33,10 @@ function UserContext(userid, res)
 	this.res.end();
     }
 
-    this.sendTextToGYANT = function (text)
+    this.sendTextToGYANT = function (text, display)
     {
+	display = typeof display !== 'undefined' ? display : true;
+	
 	console.log(ts_fmt(`(sendTextToGYANT) userid=[${this.userid}] sending [${text}]`));
 	var time = moment();
 	request(
@@ -75,7 +77,10 @@ function UserContext(userid, res)
 	    }
 	);
 
-	this.display(this.userid, text);
+	if (display)
+	{
+	    this.display(this.userid, text);
+	}
     }
 
     // \todo Store content and handlers separate from code and load at
@@ -187,7 +192,8 @@ function UserContext(userid, res)
 	console.log(ts_fmt('(handleQuickResponses) response='));
 	console.log(randomResponse);
 
-	this.sendTextToGYANT(randomResponse.responseContext);
+	this.display(this.userid, randomResponse.content);
+	this.sendTextToGYANT(randomResponse.responseContext, false);
 	return true;
     }
 
