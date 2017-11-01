@@ -224,6 +224,29 @@ function UserContext(userid, res)
     }
 }
 
+app.get('/',
+	function (req, res)
+	{
+	    res.setHeader('Content-Type', 'text/plain');
+
+	    var userid = 'michael-ngarimu';
+	    var textToSend = 'Hello';
+	    // Check for an existing userContext and create one if not
+	    // present for this user.
+	    var userContext = g_userContexts.get(userid);
+	    if (!userContext)
+	    {
+		userContext = new UserContext(userid, res);
+		g_userContexts.set(userid, userContext);
+	    }
+	    else
+	    {
+		userContext.res = res;
+	    }
+	    userContext.sendTextToGYANT(textToSend);
+	}
+       );
+
 app.get('/userid/:userid/text/:text',
 	function (req, res)
 	{
