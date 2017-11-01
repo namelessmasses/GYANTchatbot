@@ -113,7 +113,7 @@ function UserContext(userid, res)
 		   '150');
 
     addContentRule(this.contentHandlers,
-		   'Which countries have you traveled to?\nPlease list all of them:'
+		   'Which countries have you traveled to?\nPlease list all of them:',
 		   'Russia');
     
     this.contentHandlers.set('Consulting my database now about your answers. One sec... â³',
