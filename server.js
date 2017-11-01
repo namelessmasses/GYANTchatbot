@@ -34,9 +34,29 @@ app.use(bodyParser.urlencoded({extended: false}));
 // states from gyant
 //
 
+var contentHandlers = new Map();
+contentHandlers.set('how old are you in human years?',
+		    function ()
+		    {
+			// \todo Send age to GYANT
+			console.log(ts_fmt('(age handler) - sending age to GYANT'));
+			return true;
+		    });
+
 function handleTextMessage(msg)
 {
-    console.log(ts_fmt('(handleTextMessage) msg.content= ' + msg.content));
+    var contentHandler = contentHandlers.get(msg.content);
+    if (contentHandler)
+    {
+	return contentHandler();
+    }
+
+    // if no content handler is available for the input from GYANT
+    // then log the content and allow processing of any
+    // messages/responses/content that follows after this
+    //
+    console.log(ts_fmt('(handleTextMessage) INFO no handler for content - SKIPPING. msg.content='));
+    console.log(msg.content);
     return true;
 }
 
@@ -112,13 +132,10 @@ app.post('/inbound',
 	     console.log(req.body);
 	     for (var i in req.body.message)
 	     {
-		 console.log(ts_fmt('(/inbound) message= '));
 		 var message = req.body.message[i];
-		 console.log(message);
 
-		 // handle free text vs. quick response
-		 // 
-		 // \todo move this into the context/state machine
+		 // Delegate the handler for this message type. If no
+		 // handler is present log an error and continue.
 		 var messageHandler = messageTypeHandler.get(message.type)
 		 if (messageHandler)
 		 {
