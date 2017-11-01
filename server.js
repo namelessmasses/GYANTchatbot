@@ -198,8 +198,9 @@ function UserContext(userid, res)
 	{
 	    // Message is of an unknown type
 	    //
-	    // \todo handle error condition: unknown message type
-	    console.error(ts_fmt(`(handleMessage) ERROR: Unknown message type [${message.type}]`));
+	    // \todo better handle error condition: unknown message
+	    // type
+	    console.info(ts_fmt(`(handleMessage) INFO: Unknown message type [${message.type}]`));
 	    return false;
 	}
     }
