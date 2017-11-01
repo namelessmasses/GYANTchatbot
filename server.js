@@ -69,18 +69,21 @@ function UserContext(userid)
     // startup. Perhaps just map /regex/ with text with which to reply?
     // 
     this.contentHandlers = new Map();
+
     this.contentHandlers.set('how old are you in human years?',
 			     function (userContext)
 			     {
 				 userContext.sendTextToGYANT('42 years old')
 				 return true;
-			     }.bind(this));
+			     });
+
     this.contentHandlers.set('All clear?',
 			     function (userContext)
 			     {
 				 userContext.sendTextToGYANT('yes')
 				 return true;
-			     }.bind(this));
+			     });
+
     this.contentHandlers.set('And where do you live? (city and state)',
 			     function (userContext)
 			     {
@@ -88,7 +91,7 @@ function UserContext(userid)
 				 return true;
 			     });
 
-    this.handleTextMessage = function (msg)
+    this.text = function (msg)
     {
 	var contentHandler = this.contentHandlers.get(msg.content);
 	if (contentHandler)
@@ -105,7 +108,7 @@ function UserContext(userid)
 	return false;
     }
 
-    this.handleQuickResponse = function (msg)
+    this.quickResponses = function (msg)
     {
 	console.log(ts_fmt('(handleQuickResponses) msg.headerText= ' + msg.headerText));
 	console.log(ts_fmt('(handleQuickResponses) msg.responses='));
@@ -128,18 +131,20 @@ function UserContext(userid)
 	return true;
     }
 
-    this.messageTypeHandlers = new Map();
-    this.messageTypeHandlers.set('text', this.handleTextMessage.bind(this));
-    this.messageTypeHandlers.set('quickResponses', this.handleQuickResponses.bind(this));
-
+    /// Finds a method on the UserContext of the same name as the
+    /// message type. If such a method exists executes the method
+    /// passing the message.
     this.handleMessage = function (message)
     {
 	// Delegate the handler for this message type. If no
 	// handler is present log an error and continue.
-	var messageHandler = this.messageTypeHandlers.get(message.type)
-	if (messageHandler)
+	if (this.hasOwnProperty(message.type))
 	{
-	    return messageHandler(message);
+	    var messageHandler = this[message.type]
+	    if (messageHandler)
+	    {
+		return messageHandler.call(this, message);
+	    }
 	}
 	else
 	{
