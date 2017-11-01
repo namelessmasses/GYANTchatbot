@@ -77,6 +77,12 @@ g_contentHandlers.set('how old are you in human years?',
 			  sendTextToGYANT('42 years old')
 			  return true;
 		      });
+g_contentHandlers.set('All clear?',
+		      function ()
+		      {
+			  sendTextToGYANT('yes')
+			  return true;
+		      });
 g_contentHandlers.set('And where do you live? (city and state)',
 		      function ()
 		      {
