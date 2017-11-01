@@ -98,6 +98,13 @@ function UserContext(userid)
 				 return true;
 			     });
 
+    this.contentHandlers.set('And your weight in pounds (lbs)?',
+			     function (userContext)
+			     {
+				 userContext.sendTextToGYANT('150');
+				 return true;
+			     });
+
     this.text = function (msg)
     {
 	var contentHandler = this.contentHandlers.get(msg.content);
