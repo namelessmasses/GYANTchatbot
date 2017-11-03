@@ -372,7 +372,7 @@ app.post('/inbound',
 
 	     if (nothingSentToGYANT)
 	     {
-		 userContext.sentTextToGYANT('I don\'t understand');
+		 userContext.sendTextToGYANT('I don\'t understand');
 	     }
 	 }
 );
