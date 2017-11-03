@@ -7,8 +7,8 @@ var app = express();
 
 const g_TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
 const g_GYANT_SERVICE_URL = 'https://api-mbf.dev.gyantts.com:3978/api/testing';
-//const g_KIWI_SERVICE_URL = 'https://gyantchatbot.azurewebsites.net/inbound';
-const g_KIWI_SERVICE_URL = 'http://172.98.67.12:30881/inbound';
+const g_KIWI_SERVICE_URL = 'https://gyantchatbot.azurewebsites.net/inbound';
+//const g_KIWI_SERVICE_URL = 'http://172.98.67.12:30881/inbound';
 
 function ts_fmt(s)
 {
