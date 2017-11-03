@@ -198,6 +198,10 @@ function UserContext(userid, res)
 	    create_regex_test_predicate('Consulting my database now about your answers'),
 	    this.end.bind(this));
 
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('cross-referenced your responses with my medical database'),
+	    this.end.bind(this));
+    
     this.text = function (msg)
     {
     	this.display('GYANT', msg.content);
