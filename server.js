@@ -285,7 +285,7 @@ function UserContext(userid, res)
     	    var messageHandler = this[message.type];
     	    if (messageHandler)
     	    {
-    		    return messageHandler.call(this, message);
+		return messageHandler.call(this, message);
     	    }
     	}
     	else
@@ -297,6 +297,24 @@ function UserContext(userid, res)
     	    console.info(ts_fmt(`(handleMessage) INFO: Unknown message type [${message.type}]`));
     	    return false;
     	}
+    };
+
+    // The number of times 'I don't understand' was sent. Each incoming message assumes that the message was not understood
+    this.dontUnderstandCount = 0;
+    
+    this.handleDontUnderstand = function()
+    {
+	// \todo Parameterize max dontUnderstandCount. Some better way
+	// of handling this? Is there a way to restart GYANT?
+	if (this.dontUnderstandCount > 10)
+	{
+	    this.display(`Did not understand the last ${this.dontUnderstandCount} responses from GYANT. Stopping here to prevent infinitely looping conversation.`);
+	    this.end();
+	    return;
+	}
+
+    	this.sendTextToGYANT('I don\'t understand');
+	this.dontUnderstandCount += 1;
     };
 }
 
@@ -383,13 +401,14 @@ app.post('/inbound',
     		 if (userContext.handleMessage(message))
     		 {
 		     nothingSentToGYANT = false;
+		     userContext.dontUnderstandCount = 0;
     		     break;
     		 }
 	     }
 
 	     if (nothingSentToGYANT)
 	     {
-		 userContext.sendTextToGYANT('I don\'t understand');
+		 userContext.handleDontUnderstand();
 	     }
 	 }
 );
