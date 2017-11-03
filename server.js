@@ -18,16 +18,23 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 var g_userContexts = new Map();
 
+// Constructor function for UserContext.
+//
+// - userid for this conversation
+// 
+// - res (result) to which to send the output of the conversation
 function UserContext(userid, res)
 {
     this.userid = userid;
     this.res = res;
 
+    // Writes time formatted text to this.res using this.res.write(...)
     this.display = function (user, text)
     {
 	this.res.write(ts_fmt(`[${user}]: ${text}\n`));
     }
 
+    // Calls this.res.end()
     this.end = function ()
     {
 	this.res.end();
@@ -120,11 +127,11 @@ function UserContext(userid, res)
     }
 
     // Find the responseContext that matches content
-    function findResponseContext(responses, content)
+    function findResponseContext(responses, contentMatchPredicate)
     {
 	for (var response of responses)
 	{
-	    if (response.content === content)
+	    if (contentMatchPredicate(response.content))
 	    {
 		return responses.responseContext;
 	    }
@@ -136,9 +143,9 @@ function UserContext(userid, res)
     // Searches responses for contentMatch. If one is found then the
     // resulting responseContext is passed to the
     // quickResponseHandler.
-    function chooseQuickResponse(quickResponseHandler, contentMatch, responses)
+    function chooseQuickResponse(quickResponseHandler, contentMatchPredicate, responses)
     {
-	var responseContext = findResponseContext(responses, contentMatch);
+	var responseContext = findResponseContext(responses, contentMatchPredicate);
 	if (responseContext)
 	{
 	    quickResponseHandler(responseContext);
@@ -151,7 +158,7 @@ function UserContext(userid, res)
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
 	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
-				     'No'));
+				     create_regex_test_predicate('[Nn]o'));
 
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('how old are you in human years'),
