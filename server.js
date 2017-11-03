@@ -225,7 +225,7 @@ function UserContext(userid, res)
 // Check for an existing userContext and create one if not present for
 // this user. If an existing UserContext is present then use the new
 // response object from this point forward.
-function sendTextForUser(res, userid, text)
+function sendTextForUser(res, userid, textToSend)
 {
     var userContext = g_userContexts.get(userid);
     if (!userContext)
