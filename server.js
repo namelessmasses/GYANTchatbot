@@ -208,9 +208,9 @@ function UserContext(userid, res)
 	    create_regex_test_predicate('cross-referenced your responses with my medical database'),
 	    this.end.bind(this));
 
-    addRule(this.contentHandlers,
-	    create_regex_test_predicate('That\'s it! We\'re done with all my questions'),
-	    this.end.bind(this));
+    // addRule(this.contentHandlers,
+    // 	    create_regex_test_predicate('That\'s it! We\'re done with all my questions'),
+    // 	    this.end.bind(this));
 
     this.text = function (msg)
     {
