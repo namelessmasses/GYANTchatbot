@@ -163,6 +163,11 @@ function UserContext(userid, res)
 				     create_regex_test_predicate('[Nn]o')));
 
     addRule(this.contentHandlers,
+	    create_regex_test_predicate('Ready to see the results'),
+	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
+				     create_regex_test_predicate('[Yy]es')));
+
+    addRule(this.contentHandlers,
 	    create_regex_test_predicate('how old are you in human years'),
 	    this.sendTextToGYANT.bind(this, '42 years old'));
 
