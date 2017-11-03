@@ -158,7 +158,7 @@ function UserContext(userid, res)
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
 	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
-				     create_regex_test_predicate('[Nn]o'));
+				     create_regex_test_predicate('[Nn]o')));
 
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('how old are you in human years'),
