@@ -359,13 +359,20 @@ app.post('/inbound',
     		 return;
 	     }
 
+	     var nothingSentToGYANT = true;
 	     for (var i in req.body.message)
 	     {
     		 var message = req.body.message[i];
     		 if (userContext.handleMessage(message))
     		 {
+		     nothingSentToGYANT = false;
     		     break;
     		 }
+	     }
+
+	     if (nothingSentToGYANT)
+	     {
+		 userContext.sentTextToGYANT('I don\'t understand');
 	     }
 	 }
 );
