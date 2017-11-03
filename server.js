@@ -27,16 +27,18 @@ function UserContext(userid, res)
 {
     this.userid = userid;
     this.res = res;
-
-    // Writes time formatted text to this.res using this.res.write(...)
+    this.conversationLog = '';
+    
+    // Writes time formatted text to the continuing conversation
     this.display = function (user, text)
     {
-	this.res.write(ts_fmt(`[${user}]: ${text}\n`));
+	this.conversationLog = this.conversationLog.concat(ts_fmt(`[${user}]: ${text}\n`));
     }
 
-    // Calls this.res.end()
+    // Writes the conversation to the user's response.
     this.end = function ()
     {
+	this.res.write(this.conversationLog);
 	this.res.end();
 	return true;
     }
@@ -164,7 +166,7 @@ function UserContext(userid, res)
 				     create_regex_test_predicate('[Nn]o')));
 
     addRule(this.contentHandlers,
-	    create_regex_test_predicate('Ready to see the results'),
+	    create_regex_test_predicate('see the results'),
 	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
 				     create_regex_test_predicate('[Yy]es')));
 
@@ -208,9 +210,11 @@ function UserContext(userid, res)
 	    create_regex_test_predicate('cross-referenced your responses with my medical database'),
 	    this.end.bind(this));
 
-    // addRule(this.contentHandlers,
-    // 	    create_regex_test_predicate('That\'s it! We\'re done with all my questions'),
-    // 	    this.end.bind(this));
+    addRule(this
+    
+    addRule(this.contentHandlers,
+    	    create_regex_test_predicate('That\'s it! We\'re done with all my questions'),
+    	    this.end.bind(this));
 
     this.text = function (msg)
     {
