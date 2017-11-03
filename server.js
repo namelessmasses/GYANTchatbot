@@ -84,8 +84,8 @@ function UserContext(userid, res)
     	}
     };
 
-    // \todo Store content and handlers separate from code and load at
-    // startup. Perhaps just map /regex/ with text with which to reply?
+    // Array of [matchPredicate, resultFunction]. Generally, 
+    //     if (matchPredicate(input)) resultFunction()
     // 
     this.contentHandlers = [];
 
@@ -106,10 +106,11 @@ function UserContext(userid, res)
     
     	return null;
     }	
-    
-    this.findContentHandler = function (s)
+
+    // Find a content handler that predicate(content) is true.
+    this.findContentHandler = function (content)
     {
-	return findHandler(this.contentHandlers);
+	return findHandler(this.contentHandlers, content);
     };
 
     function create_regex_test_predicate(exprString)
@@ -117,6 +118,40 @@ function UserContext(userid, res)
 	var regex = new RegExp(exprString);
 	return regex.test.bind(regex);
     }
+
+    // Find the responseContext that matches content
+    function findResponseContext(responses, content)
+    {
+	for (var response of responses)
+	{
+	    if (response.content === content)
+	    {
+		return responses.responseContext;
+	    }
+	}
+
+	return null;
+    }
+
+    // Searches responses for contentMatch. If one is found then the
+    // resulting responseContext is passed to the
+    // quickResponseHandler.
+    function chooseQuickResponse(quickResponseHandler, contentMatch, responses)
+    {
+	var responseContext = findResponseContext(responses, contentMatch);
+	if (responseContext)
+	{
+	    quickResponseHandler(responseContext);
+	    return contentMatch;
+	}
+
+	return null;
+    }
+    
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
+	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
+				     'No'));
 
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('how old are you in human years'),
@@ -153,40 +188,6 @@ function UserContext(userid, res)
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('Consulting my database now about your answers'),
 	    this.end.bind(this));
-
-    // Find the responseContext that matches content
-    function findResponseContext(responses, content)
-    {
-	for (var response of responses)
-	{
-	    if (response.content === content)
-	    {
-		return responses.responseContext;
-	    }
-	}
-
-	return null;
-    }
-
-    // Searches responses for contentMatch. If one is found then the
-    // resulting responseContext is passed to the
-    // quickResponseHandler.
-    function chooseQuickResponse(quickResponseHandler, contentMatch, responses)
-    {
-	var responseContext = findResponseContext(responses, contentMatch);
-	if (responseContext)
-	{
-	    quickResponseHandler(responseContext);
-	    return contentMatch;
-	}
-
-	return null;
-    }
-    
-    addRule(this.contentHandlers,
-	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
-	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
-				     'No'));
 
     this.text = function (msg)
     {
