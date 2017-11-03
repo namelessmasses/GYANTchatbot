@@ -131,8 +131,9 @@ function UserContext(userid, res)
     // Find the responseContext that matches content
     function findResponseContext(responses, contentMatchPredicate)
     {
-	for (var response of responses)
+	for (var i in responses)
 	{
+	    var response = responses[i];
 	    if (contentMatchPredicate(response.content))
 	    {
 		return responses.responseContext;
