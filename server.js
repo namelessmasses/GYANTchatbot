@@ -89,14 +89,14 @@ function UserContext(userid, res)
     // 
     this.contentHandlers = [];
 
-    function addContentRule(collection, matchFunction, resultFunction)
+    function addRule(collection, matchFunction, resultFunction)
     {
         collection.push([matchFunction, resultFunction]);
     }
 
-    this.findContentHandler = function (s)
+    function findHandler(collection, s)
     {
-    	for (const [predicate, handler] of this.contentHandlers)
+    	for (const [predicate, handler] of collection)
     	{
     	    if (predicate(s))
     	    {
@@ -105,6 +105,11 @@ function UserContext(userid, res)
     	}
     
     	return null;
+    }	
+    
+    this.findContentHandler = function (s)
+    {
+	return findHandler(this.contentHandlers);
     };
 
     function create_regex_test_predicate(exprString)
@@ -113,41 +118,75 @@ function UserContext(userid, res)
 	return regex.test.bind(regex);
     }
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('how old are you in human years'),
-		   this.sendTextToGYANT.bind(this, '42 years old'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('how old are you in human years'),
+	    this.sendTextToGYANT.bind(this, '42 years old'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('All clear'),
-		   this.sendTextToGYANT.bind(this, 'yes'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('All clear'),
+	    this.sendTextToGYANT.bind(this, 'yes'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('where do you live'),
-		   this.sendTextToGYANT.bind(this, 'San Francisco'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('where do you live'),
+	    this.sendTextToGYANT.bind(this, 'San Francisco'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('What\'s your height in feet'),
-		   this.sendTextToGYANT.bind(this, '5\'10"'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('What\'s your height in feet'),
+	    this.sendTextToGYANT.bind(this, '5\'10"'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('your weight in pounds'),
-		   this.sendTextToGYANT.bind(this, '150'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('your weight in pounds'),
+	    this.sendTextToGYANT.bind(this, '150'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('Which countries have you traveled to'),
-		   this.sendTextToGYANT.bind(this, 'England'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('Which countries have you traveled to'),
+	    this.sendTextToGYANT.bind(this, 'England'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('Please describe your symptoms for me'),
-		   this.sendTextToGYANT.bind(this, 'My hands hurt'));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('Please describe your symptoms for me'),
+	    this.sendTextToGYANT.bind(this, 'My hands hurt'));
 
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('From your symptom description, the best match in my database is'),
-		   this.end.bind(this));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('From your symptom description, the best match in my database is'),
+	    this.end.bind(this));
     
-    addContentRule(this.contentHandlers,
-		   create_regex_test_predicate('Consulting my database now about your answers'),
-		   this.end.bind(this));
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('Consulting my database now about your answers'),
+	    this.end.bind(this));
+
+    // Find the responseContext that matches content
+    function findResponseContext(responses, content)
+    {
+	for (var response of responses)
+	{
+	    if (response.content === content)
+	    {
+		return responses.responseContext;
+	    }
+	}
+
+	return null;
+    }
+
+    // Searches responses for contentMatch. If one is found then the
+    // resulting responseContext is passed to the
+    // quickResponseHandler.
+    function chooseQuickResponse(quickResponseHandler, contentMatch, responses)
+    {
+	var responseContext = findResponseContext(responses, contentMatch);
+	if (responseContext)
+	{
+	    quickResponseHandler(responseContext);
+	    return contentMatch;
+	}
+
+	return null;
+    }
+    
+    addRule(this.contentHandlers,
+	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
+	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
+				     'No'));
 
     this.text = function (msg)
     {
@@ -180,19 +219,33 @@ function UserContext(userid, res)
     	    console.log(ts_fmt(`(handleQuickResponses) msg.responses[${i}] =`));
     	    console.log(msg.responses[i]);
     	}
-    
-    	// Randomly choose a quick response.
-    	// Random number in the range [0, msg.responses.length - 1]
-    	var randomIndex = Math.trunc(Math.random() * msg.responses.length);
-    	console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
-    
-    	var randomResponse = msg.responses[randomIndex];
-    	console.log(ts_fmt('(handleQuickResponses) response='));
-    	console.log(randomResponse);
-    
-    	this.display(this.userid, randomResponse.content);
-    	this.sendTextToGYANT(randomResponse.responseContext, false);
-    	return true;
+
+	// If the header text matches an existing content handler then find the handler 
+	var contentHandler = this.findContentHandler(msg.headerText);
+	if (contentHandler)
+	{
+	    var contentSent = contentHandler(msg.responses);
+	    if (contentSent)
+	    {
+		this.display(this.userid, contentSent);
+	    }
+	}
+	else
+	{
+    	    // Randomly choose a quick response.
+    	    // Random number in the range [0, msg.responses.length - 1]
+    	    var randomIndex = Math.trunc(Math.random() * msg.responses.length);
+    	    console.log(ts_fmt(`(handleQuickResponses) randomly choose ${randomIndex}`));
+	    
+    	    var randomResponse = msg.responses[randomIndex];
+    	    console.log(ts_fmt('(handleQuickResponses) response='));
+    	    console.log(randomResponse);
+	    
+    	    this.display(this.userid, randomResponse.content);
+    	    this.sendTextToGYANT(randomResponse.responseContext, false);
+	}
+
+	return true;
     };
 
     /// Finds a method on the UserContext of the same name as the
