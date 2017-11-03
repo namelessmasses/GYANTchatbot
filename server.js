@@ -89,6 +89,8 @@ function UserContext(userid, res)
     	{
     	    this.display(this.userid, text);
     	}
+
+	return true;
     };
 
     // Array of [matchPredicate, resultFunction]. Generally, 
@@ -203,6 +205,7 @@ function UserContext(userid, res)
     	var contentHandler = this.findContentHandler(msg.content);
     	if (contentHandler)
     	{
+	    console.log(ts_fmt(`(handleTextMessage) INFO found handler for [${msg.content}]`));
     	    return contentHandler();
     	}
     
