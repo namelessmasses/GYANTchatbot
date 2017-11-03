@@ -5,12 +5,15 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var app = express();
 
-var TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
+const g_TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
+const g_GYANT_SERVICE_URL = 'https://api-mbf.dev.gyantts.com:3978/api/testing';
+//const g_KIWI_SERVICE_URL = 'https://gyantchatbot.azurewebsites.net/inbound';
+const g_KIWI_SERVICE_URL = 'http://172.98.67.12:30881/inbound';
 
 function ts_fmt(s)
 {
     var time = moment();
-    return time.format(TIME_FORMAT_STRING) + ': ' + s;
+    return time.format(g_TIME_FORMAT_STRING) + ': ' + s;
 }
 
 app.use(bodyParser.json());
@@ -51,15 +54,15 @@ function UserContext(userid, res)
     	var time = moment();
     	request(
     	    {
-        		url: 'https://api-mbf.dev.gyantts.com:3978/api/testing',
+        		url: g_GYANT_SERVICE_URL,
         		method: 'POST',
         		json: {
         		    type: 'message',
-        		    timestamp: time.format(TIME_FORMAT_STRING),
+        		    timestamp: time.format(g_TIME_FORMAT_STRING),
         		    text: text,
         		    address:
         		    {
-        			serviceUrl: 'https://gyantchatbot.azurewebsites.net/inbound',
+        			serviceUrl: g_KIWI_SERVICE_URL,
         			type: 'direct'
         		    },
         		    user:
@@ -420,4 +423,8 @@ app.post('/inbound',
 );
 
 app.listen((process.env.PORT || 8080));
+
+console.log('Running...');
+console.info(`GYANT service URL: ${g_GYANT_SERVICE_URL}`);
+console.info(`LOCAL service URL: ${g_KIWI_SERVICE_URL}`);
 
