@@ -3,6 +3,7 @@ var moment = require('moment');
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
+var websocket = require('websocket');
 var app = express();
 
 const g_TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
@@ -399,7 +400,7 @@ app.post('/inbound',
 	     var userContext = g_userContexts.get(req.body.user.name);
 	     if (!userContext)
 	     {
-    		 console.error(ts_fmt(`(/inbound): ERROR - Cannot find user context for username ${req.body.user.name}`));
+    		 console.error(ts_fmt('(/inbound): ERROR - Cannot find user context for username ' + req.body.user.name));
     		 return;
 	     }
 
@@ -422,9 +423,13 @@ app.post('/inbound',
 	 }
 );
 
-app.listen((process.env.PORT || 8080));
+app.listen((process.env.PORT || 8080),
+	   function ()
+	   {
+	       console.info('Listening');
+	   }
+	  );
 
-console.log('Running...');
 console.info(`GYANT service URL: ${g_GYANT_SERVICE_URL}`);
 console.info(`LOCAL service URL: ${g_KIWI_SERVICE_URL}`);
 

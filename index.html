@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat with GYANT</title>
+    <script language="javascript" type="text/javascript">
+      var wsURI = "ws://gyantchatbot.azurewebsites.net:443";
+      var output;
+      var websocket;
+
+      function init()
+      {
+      output = document.getElementById("output");
+      writeToScreen("init()");
+      
+      websocket = new WebSocket(wsURI);
+
+      websocket.onopen = onopen;
+      
+      websocket.onclose = onclose;
+      
+      websocket.onmessage = onMessage;
+      
+      websocket.onError = onError;
+      }
+
+      function writeToScreen(message)
+      {
+      var preElement = document.createElement("p");
+      preElement.style.wordWrap = "break-word";
+      preElement.innerHTML = message;
+      output.appendChild(preElement);
+      }
+      
+      function onopen(evt)
+      {
+      writeToScreen("CONNECTED");
+      };
+
+      function onclose(evt)
+      {
+      writeToScreen("DISCONNECTED");
+      }
+      
+      function onMessage(evt)
+      {
+      writeToScreen(evt.data);
+      };
+
+      function onError(evt)
+      {
+      writeToScreen("ERROR: " + evt.data);
+      }
+
+      window.addEventListener("load", init, false);
+
+    </script>
+  </head>
+  <body>
+    <h2>The conversation so far...</h2>
+    <div id="output"/>
+  </body>
+</html>
