@@ -9,7 +9,6 @@ var app = express();
 const g_TIME_FORMAT_STRING = 'YYYY-MM-DD HH:mm:ss Z';
 const g_GYANT_SERVICE_URL = 'https://api-mbf.dev.gyantts.com:3978/api/testing';
 const g_KIWI_SERVICE_URL = 'https://gyantchatbot.azurewebsites.net/inbound';
-//const g_KIWI_SERVICE_URL = 'http://172.98.67.12:30881/inbound';
 
 function ts_fmt(s)
 {
@@ -32,20 +31,35 @@ function UserContext(userid, res)
     this.userid = userid;
     this.res = res;
     this.conversationLog = '';
+    this.webSocketConnection = null;
+
+    this.setWebSocketConnection = function (wsc)
+    {
+	this.webSocketConnection = wsc;
+	if (this.webSocketConnection)
+	{
+	    this.webSocketConnection.send(this.conversationLog);
+	}
+    };
     
     // Writes time formatted text to the continuing conversation
     this.display = function (user, text)
     {
-	this.conversationLog = this.conversationLog.concat(ts_fmt(`[${user}]: ${text}\n`));
-    }
+	const s = ts_fmt(`[${user}]: ${text}\n`);
+	this.conversationLog = this.conversationLog.concat(s);
+	if (this.webSocketConnection)
+	{
+	    this.webSocketConnection.send(s);
+	}
+    };
 
     // Writes the conversation to the user's response.
     this.end = function ()
     {
-	this.res.write(this.conversationLog);
-	this.res.end();
+	// this.res.write(this.conversationLog);
+	// this.res.end();
 	return true;
-    }
+    };
 
     this.sendTextToGYANT = function (text, display)
     {
@@ -347,7 +361,10 @@ function sendTextForUser(res, userid, textToSend)
 }
 
 // The root route chooses a default user ID based on YYYYMMDD-hhmmss and text to
-// send 'Hello'. 
+// send 'Hello'.
+//
+// \todo REMOVE THIS ROUTE - allow index.html to be retrieved as a
+// static page. 
 app.get('/',
 	function (req, res)
 	{
@@ -423,12 +440,58 @@ app.post('/inbound',
 	 }
 );
 
-app.listen((process.env.PORT || 8080),
-	   function ()
-	   {
-	       console.info('Listening');
-	   }
-	  );
+var appHttpServer = app.listen((process.env.PORT || 8080),
+			       function ()
+			       {
+				   console.info('Listening');
+			       }
+			      );
+
+var webSocketServer = new websocket.server(
+    {
+	httpServer: appHttpServer,
+	autoAcceptConnections: true
+    });
+
+webSocketServer.on(
+    'connect',
+    function (webSocketConnection)
+    {
+	console.info(ts_fmt(`Received web socket connection from ${webSocketConnection.remoteAddress}`));
+
+	// Nothing really in the websocket to associate as a username
+	// for gyant. Will suffice to have the client send the
+	// username in a message over the websocket.
+
+	// Recognize that there is no authentication here and that any client can 'hijack' a user session and have the conversation sent them at any point.
+	webSocketConnection.on(
+	    'message',
+	    function (msg)
+	    {
+		if (msg.type === 'utf8')
+		{
+		    const username = msg.utf8Data;
+		    console.log(ts_fmt(`Received username over websocket: ${username}`));
+		    // Find the UserContext for this username and
+		    // attach this webSocketConnection to the
+		    // UserContext
+		    var userContext = g_userContexts.get(req.body.user.name);
+		    if (!userContext)
+		    {
+			userContext.setWebSocketConnection(webSocketConnection);
+		    }
+		}
+	    });
+				   
+    });
+
+webSocketServer.on(
+    'close',
+    function (webSocketConnection, closeReason, description)
+    {
+	// \todo Find the user associated with this web socket
+	// connection and remove the connection.
+    });
 
 console.info(`GYANT service URL: ${g_GYANT_SERVICE_URL}`);
 console.info(`LOCAL service URL: ${g_KIWI_SERVICE_URL}`);

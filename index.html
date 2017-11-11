@@ -3,9 +3,9 @@
   <head>
     <title>Chat with GYANT</title>
     <script language="javascript" type="text/javascript">
-      var wsURI = "ws://gyantchatbot.azurewebsites.net:443";
-      var output;
-      var websocket;
+      var wsURI = "wss://gyantchatbot.azurewebsites.net:443";
+      var output = null;
+      var websocket = null;
 
       function init()
       {
@@ -34,6 +34,9 @@
       function onopen(evt)
       {
       writeToScreen("CONNECTED");
+
+      // How to get the username here?
+      websocket.send("user");
       };
 
       function onclose(evt)
