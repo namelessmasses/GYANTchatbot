@@ -20,7 +20,7 @@
       
       websocket.onmessage = onMessage;
       
-      websocket.onError = onError;
+      websocket.onerror = onerror;
       }
 
       function writeToScreen(message)
@@ -44,12 +44,12 @@
       writeToScreen("DISCONNECTED");
       }
       
-      function onMessage(evt)
+      function onmessage(evt)
       {
       writeToScreen(evt.data);
       };
 
-      function onError(evt)
+      function onerror(evt)
       {
       writeToScreen("ERROR: " + evt.data);
       }
