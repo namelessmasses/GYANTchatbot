@@ -33,7 +33,7 @@ function UserContext(userid, res)
     this.res = res;
     this.conversationLog = '';
     this.webSocketConnection = null;
-
+    
     this.setWebSocketConnection = function (wsc)
     {
 	this.webSocketConnection = wsc;
@@ -53,7 +53,7 @@ function UserContext(userid, res)
 	    this.webSocketConnection.send(s);
 	}
     };
-
+    
     // Writes the conversation to the user's response.
     this.end = function ()
     {
@@ -61,7 +61,7 @@ function UserContext(userid, res)
 	// this.res.end();
 	return true;
     };
-
+    
     this.sendTextToGYANT = function (text, display)
     {
     	display = typeof display !== 'undefined' ? display : true;
@@ -70,60 +70,60 @@ function UserContext(userid, res)
     	var time = moment();
     	request(
     	    {
-        		url: g_GYANT_SERVICE_URL,
-        		method: 'POST',
-        		json: {
-        		    type: 'message',
-        		    timestamp: time.format(g_TIME_FORMAT_STRING),
-        		    text: text,
-        		    address:
-        		    {
-        			serviceUrl: g_KIWI_SERVICE_URL,
-        			type: 'direct'
-        		    },
-        		    user:
-        		    {
-        			id: this.userid,
-        			name: this.userid
-        		    },
-        		    source: 'testing',
-        		    token: 'michael-VkZRbWhOUTF'
-        		}
+        	url: g_GYANT_SERVICE_URL,
+        	method: 'POST',
+        	json: {
+        	    type: 'message',
+        	    timestamp: time.format(g_TIME_FORMAT_STRING),
+        	    text: text,
+        	    address:
+        	    {
+        		serviceUrl: g_KIWI_SERVICE_URL,
+        		type: 'direct'
+        	    },
+        	    user:
+        	    {
+        		id: this.userid,
+        		name: this.userid
+        	    },
+        	    source: 'testing',
+        	    token: 'michael-VkZRbWhOUTF'
+        	}
     	    },
     	    function (error, response, body)
     	    {
-    		    if (error)
-        		{
-        		    console.log('Error sending message: ', error); 
-        		}
-        		else
-        		{
-        		    console.log(ts_fmt('(sendTextToGYANT.response) '
-        				       + 'sent = [' + text + '] '
-        				       + 'response.statusCode= ' + response.statusCode + ' '
-        				       + 'response.statusMessage= ' + response.statusMessage));
-        		}
+    		if (error)
+        	{
+        	    console.log('Error sending message: ', error); 
+        	}
+        	else
+        	{
+        	    console.log(ts_fmt('(sendTextToGYANT.response) '
+        			       + 'sent = [' + text + '] '
+        			       + 'response.statusCode= ' + response.statusCode + ' '
+        			       + 'response.statusMessage= ' + response.statusMessage));
+        	}
     	    }
     	);
-
+	
     	if (display)
     	{
     	    this.display(this.userid, text);
     	}
-
+	
 	return true;
     };
-
+    
     // Array of [matchPredicate, resultFunction]. Generally, 
     //     if (matchPredicate(input)) resultFunction()
     // 
     this.contentHandlers = [];
-
+    
     function addRule(collection, matchFunction, resultFunction)
     {
         collection.push([matchFunction, resultFunction]);
     }
-
+    
     function findHandler(collection, s)
     {
     	for (const [predicate, handler] of collection)
@@ -133,22 +133,22 @@ function UserContext(userid, res)
         	return handler;
     	    }
     	}
-    
+	
     	return null;
     }	
-
+    
     // Find a content handler that predicate(content) is true.
     this.findContentHandler = function (content)
     {
 	return findHandler(this.contentHandlers, content);
     };
-
+    
     function create_regex_test_predicate(exprString)
     {
 	var regex = new RegExp(exprString);
 	return regex.test.bind(regex);
     }
-
+    
     // Find the responseContext that matches content
     function findResponseContext(responses, contentMatchPredicate)
     {
@@ -160,10 +160,10 @@ function UserContext(userid, res)
 		return responses.responseContext;
 	    }
 	}
-
+	
 	return null;
     }
-
+    
     // Searches responses for contentMatch. If one is found then the
     // resulting responseContext is passed to the
     // quickResponseHandler.
@@ -175,7 +175,7 @@ function UserContext(userid, res)
 	    quickResponseHandler(responseContext);
 	    return contentMatch;
 	}
-
+	
 	return null;
     }
     
@@ -183,40 +183,40 @@ function UserContext(userid, res)
 	    create_regex_test_predicate('Anything else you want to mention that we haven\'t covered?'),
 	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
 				     create_regex_test_predicate('[Nn]o')));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('see the results'),
 	    chooseQuickResponse.bind(this.sendTextToGYANT.bind(this),
 				     create_regex_test_predicate('[Yy]es')));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('how old are you in human years'),
 	    this.sendTextToGYANT.bind(this, '42 years old'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('All clear'),
 	    this.sendTextToGYANT.bind(this, 'yes'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('where do you live'),
 	    this.sendTextToGYANT.bind(this, 'San Francisco'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('What\'s your height in feet'),
 	    this.sendTextToGYANT.bind(this, '5\'10"'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('your weight in pounds'),
 	    this.sendTextToGYANT.bind(this, '150'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('Which countries have you traveled to'),
 	    this.sendTextToGYANT.bind(this, 'England'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('Please describe your symptoms for me'),
 	    this.sendTextToGYANT.bind(this, 'My hands hurt'));
-
+    
     addRule(this.contentHandlers,
 	    create_regex_test_predicate('From your symptom description, the best match in my database is'),
 	    this.end.bind(this));
