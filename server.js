@@ -18,6 +18,7 @@ function ts_fmt(s)
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static('.'));
 
 var g_userContexts = new Map();
 
