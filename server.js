@@ -460,12 +460,13 @@ webSocketServer.on(
 
 		    // \todo have the initial text to send in the
 		    // message sent from the client.
-		    sendTextForUser(null, username, 'hello');
 		    var userContext = g_userContexts.get(username);
 		    if (userContext)
 		    {
 			userContext.setWebSocketConnection(webSocketConnection);
 		    }
+
+		    sendTextForUser(null, username, 'hello');
 		}
 	    });
 				   
