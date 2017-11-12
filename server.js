@@ -476,7 +476,7 @@ webSocketServer.on(
 		    // Find the UserContext for this username and
 		    // attach this webSocketConnection to the
 		    // UserContext
-		    var userContext = g_userContexts.get(req.body.user.name);
+		    var userContext = g_userContexts.get(username);
 		    if (!userContext)
 		    {
 			userContext.setWebSocketConnection(webSocketConnection);
