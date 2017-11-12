@@ -452,6 +452,7 @@ webSocketServer.on(
 		{
 		    const username = msg.utf8Data;
 		    console.log(ts_fmt(`Received username over websocket: ${username}`));
+		    webSocketConnection.send(ts_fmt('Connected to web app'));
 		    
 		    // Find the UserContext for this username and
 		    // attach this webSocketConnection to the
