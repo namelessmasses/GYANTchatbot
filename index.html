@@ -10,7 +10,7 @@
       function init()
       {
       output = document.getElementById("output");
-      writeToScreen("init()");
+      writeToScreen("Initializing...");
       
       websocket = new WebSocket(wsURI);
 
@@ -33,7 +33,7 @@
       
       function onopen(evt)
       {
-      writeToScreen("CONNECTED");
+      writeToScreen("Socket CONNECTED; sending user information");
 
       // How to get the username here?
       websocket.send("user-20171111-164600");
