@@ -36,9 +36,11 @@ function UserContext(userid, res)
     
     this.setWebSocketConnection = function (wsc)
     {
+	console.log(ts_fmt(`(setWebSocketConnection) ${wsc}`));
 	this.webSocketConnection = wsc;
 	if (this.webSocketConnection)
 	{
+	    console.log(ts_fmt(`(setWebSocketConnection) sending conversation so far back to client ${this.conversationLog.length} bytes`));
 	    this.webSocketConnection.send(this.conversationLog);
 	}
     };
@@ -50,6 +52,7 @@ function UserContext(userid, res)
 	this.conversationLog = this.conversationLog.concat(s);
 	if (this.webSocketConnection)
 	{
+	    console.log(ts_fmt(`(display) sending ${s.length} over web socket`));
 	    this.webSocketConnection.send(s);
 	}
     };
