@@ -361,51 +361,30 @@ function sendTextForUser(res, userid, textToSend)
     userContext.sendTextToGYANT(textToSend);
 }
 
-// The root route chooses a default user ID based on YYYYMMDD-hhmmss and text to
-// send 'Hello'.
-//
-// \todo REMOVE THIS ROUTE - allow index.html to be retrieved as a
-// static page. 
-app.get('/',
-	function (req, res)
-	{
-	    res.setHeader('Content-Type', 'text/plain');
-
-	    var time = moment();
-	    var userid = time.format('YYYYMMDD-hhmmss');
-	    console.log(ts_fmt(`(/) userid=[${userid}]`));
-
-	    var textToSend = 'Hello';
-	    console.log(ts_fmt(`(/) textToSend=[${textToSend}]`));
-	    
-	    sendTextForUser(res, userid, textToSend);
-	}
-);
-
 // This route allows sending arbitrary text for an arbitrary user ID.
-app.get('/userid/:userid/text/:text',
-	function (req, res)
-	{
-	    res.setHeader('Content-Type', 'text/plain');
+// app.get('/userid/:userid/text/:text',
+// 	function (req, res)
+// 	{
+// 	    res.setHeader('Content-Type', 'text/plain');
 	    
-	    // Extract a userid and text to send to GYANT
-	    var userid = req.params.userid;
-	    if (!userid)
-	    {
-    		userid = 'kiwi';
-	    }
-	    console.log(ts_fmt(`(/userid/:userid/text/:text) userid= ${userid}`));
+// 	    // Extract a userid and text to send to GYANT
+// 	    var userid = req.params.userid;
+// 	    if (!userid)
+// 	    {
+//     		userid = 'kiwi';
+// 	    }
+// 	    console.log(ts_fmt(`(/userid/:userid/text/:text) userid= ${userid}`));
 
-	    var  textToSend = req.params.text;
-	    if (!textToSend)
-	    {
-	    	textToSend = 'Hello';
-	    }
-	    console.log(ts_fmt(`(/userid/:userid/text/:text) textToSend= ${textToSend}`));
+// 	    var  textToSend = req.params.text;
+// 	    if (!textToSend)
+// 	    {
+// 	    	textToSend = 'Hello';
+// 	    }
+// 	    console.log(ts_fmt(`(/userid/:userid/text/:text) textToSend= ${textToSend}`));
 
-	    sendTextForUser(res, userid, textToSend);
-	}
-);
+// 	    sendTextForUser(res, userid, textToSend);
+// 	}
+// );
 
 app.post('/inbound',
 	 function (req, res)
@@ -473,11 +452,16 @@ webSocketServer.on(
 		{
 		    const username = msg.utf8Data;
 		    console.log(ts_fmt(`Received username over websocket: ${username}`));
+		    
 		    // Find the UserContext for this username and
 		    // attach this webSocketConnection to the
 		    // UserContext
+
+		    // \todo have the initial text to send in the
+		    // message sent from the client.
+		    sendTextForUser(null, username, 'hello');
 		    var userContext = g_userContexts.get(username);
-		    if (!userContext)
+		    if (userContext)
 		    {
 			userContext.setWebSocketConnection(webSocketConnection);
 		    }
