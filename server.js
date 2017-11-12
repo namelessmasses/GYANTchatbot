@@ -392,7 +392,6 @@ app.post('/inbound',
 	     var time = moment();
 	     console.log(ts_fmt('(/inbound): BODY'));
 	     console.log(req.body);
-	     console.log(req);
 
 	     // Find the context for this user.
 	     var userContext = g_userContexts.get(req.body.user.name);
